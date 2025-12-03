@@ -66,6 +66,7 @@ func (f *defaultFinder) Find() (error, map[string][]FileInfo) {
 			})
 			log.L().Debug("Hashing task submitted", zap.String("name", item.fileInfo.Name))
 		}
+		f.workerPool.CloseSubmit()
 		log.L().Debug("All task submitted; Goroutine exit")
 		errorChannel <- nil
 	}()

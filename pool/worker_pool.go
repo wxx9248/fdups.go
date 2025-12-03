@@ -21,6 +21,7 @@ type WorkerPool[I interface{}, O interface{}] interface {
 	Start()
 	Stop()
 	Cancel()
+	CloseSubmit()
 	GetOutputChannel() chan O
 	GetEventChannel() chan WorkerEvent
 	GetTaskCount() int

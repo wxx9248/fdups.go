@@ -14,17 +14,18 @@ const (
 )
 
 type defaultWorkerPool[I interface{}, O interface{}] struct {
-	workerCapacity int
-	status         workerStatus
-	taskQueue      chan Task[I, O]
-	taskContext    context.Context
-	taskCancel     context.CancelFunc
-	taskCount      int
-	taskCountLock  sync.RWMutex
-	workerContext  context.Context
-	workerCancel   context.CancelFunc
-	outputChannel  chan O
-	eventChannel   chan WorkerEvent
+	workerCapacity    int
+	status            workerStatus
+	taskQueue         chan Task[I, O]
+	taskContext       context.Context
+	taskCancel        context.CancelFunc
+	taskCount         int
+	submittingComplete bool
+	taskCountLock     sync.RWMutex
+	workerContext     context.Context
+	workerCancel      context.CancelFunc
+	outputChannel     chan O
+	eventChannel      chan WorkerEvent
 }
 
 func NewDefaultWorkerPool[I interface{}, O interface{}](workerCapacity int) WorkerPool[I, O] {
@@ -53,11 +54,11 @@ func (w *defaultWorkerPool[I, O]) Submit(task Task[I, O]) error {
 		return errors.New("no new tasks are accepted for stopped or paused worker pool")
 	}
 
-	w.taskQueue <- task
-
 	w.taskCountLock.Lock()
-	defer w.taskCountLock.Unlock()
 	w.taskCount++
+	w.taskCountLock.Unlock()
+
+	w.taskQueue <- task
 
 	return nil
 }
@@ -88,6 +89,17 @@ func (w *defaultWorkerPool[I, O]) Cancel() {
 	w.taskCancel()
 }
 
+func (w *defaultWorkerPool[I, O]) CloseSubmit() {
+	w.taskCountLock.Lock()
+	defer w.taskCountLock.Unlock()
+	w.submittingComplete = true
+	if w.taskCount <= 0 {
+		go func() {
+			w.eventChannel <- EventAllTaskDone
+		}()
+	}
+}
+
 func (w *defaultWorkerPool[I, O]) GetOutputChannel() chan O {
 	return w.outputChannel
 }
@@ -112,7 +124,7 @@ func (w *defaultWorkerPool[I, O]) worker(id int) {
 			w.outputChannel <- task.TaskFunction(w.taskContext, task.Input)
 			w.taskCountLock.Lock()
 			w.taskCount--
-			if w.taskCount <= 0 {
+			if w.submittingComplete && w.taskCount <= 0 {
 				go func() {
 					w.eventChannel <- EventAllTaskDone
 				}()
