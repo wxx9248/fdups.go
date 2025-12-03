@@ -8,14 +8,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checking Out Repository
-      uses: actions/checkout@v6
+      - name: Checking Out Repository
+        uses: actions/checkout@v6
 
-    - name: Setup Go Environment
-      uses: actions/setup-go@v6
-      with:
-        go-version-file: "go.mod"
+      - name: Setup Go Environment
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: "go.mod"
 
-    - name: Build
-      run: |
-        make release
+      - name: Build
+        run: |
+          make release

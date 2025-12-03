@@ -14,18 +14,18 @@ const (
 )
 
 type defaultWorkerPool[I interface{}, O interface{}] struct {
-	workerCapacity    int
-	status            workerStatus
-	taskQueue         chan Task[I, O]
-	taskContext       context.Context
-	taskCancel        context.CancelFunc
-	taskCount         int
+	workerCapacity     int
+	status             workerStatus
+	taskQueue          chan Task[I, O]
+	taskContext        context.Context
+	taskCancel         context.CancelFunc
+	taskCount          int
 	submittingComplete bool
-	taskCountLock     sync.RWMutex
-	workerContext     context.Context
-	workerCancel      context.CancelFunc
-	outputChannel     chan O
-	eventChannel      chan WorkerEvent
+	taskCountLock      sync.RWMutex
+	workerContext      context.Context
+	workerCancel       context.CancelFunc
+	outputChannel      chan O
+	eventChannel       chan WorkerEvent
 }
 
 func NewDefaultWorkerPool[I interface{}, O interface{}](workerCapacity int) WorkerPool[I, O] {
