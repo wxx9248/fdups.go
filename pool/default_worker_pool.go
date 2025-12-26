@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+// workerStatus represents the current state of the worker pool.
 type workerStatus uint
 
 const (
@@ -13,6 +14,8 @@ const (
 	statusStarted
 )
 
+// defaultWorkerPool is the standard implementation of WorkerPool.
+// It manages a fixed number of worker goroutines that process tasks concurrently.
 type defaultWorkerPool[I interface{}, O interface{}] struct {
 	workerCapacity     int
 	status             workerStatus
@@ -28,6 +31,10 @@ type defaultWorkerPool[I interface{}, O interface{}] struct {
 	eventChannel       chan WorkerEvent
 }
 
+// NewDefaultWorkerPool creates a new worker pool with the specified number of workers.
+//
+// The pool must be started with Start() before submitting tasks.
+// Workers share an unbuffered task queue and output channel.
 func NewDefaultWorkerPool[I interface{}, O interface{}](workerCapacity int) WorkerPool[I, O] {
 	taskContext, taskCancel := context.WithCancel(context.Background())
 	workerContext, workerCancel := context.WithCancel(context.Background())

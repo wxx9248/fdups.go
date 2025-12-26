@@ -1,5 +1,12 @@
 //go:build release
 
+// Package log provides a singleton logger for the application.
+//
+// The logger implementation varies based on build tags:
+//   - debug: Uses zap's development configuration with verbose output
+//   - release: Uses a custom production configuration with minimal output
+//
+// Access the logger via the L() function.
 package log
 
 import (
@@ -27,6 +34,12 @@ func init() {
 	logger = zap.Must(logConfig.Build())
 }
 
+// L returns the singleton zap logger instance.
+//
+// In release builds, this returns a production logger with:
+//   - Console encoding with minimal decoration
+//   - Timestamp format: HH:MM:SS.mmm
+//   - No caller, function, or stacktrace information
 func L() *zap.Logger {
 	return logger
 }
