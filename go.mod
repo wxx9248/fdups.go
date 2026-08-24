@@ -3,7 +3,7 @@ module fdups
 go 1.25
 
 require (
-	github.com/mewkiz/flac v1.0.13
+	github.com/mewkiz/flac v1.0.14
 	github.com/spf13/cobra v1.10.2
 	go.uber.org/zap v1.28.0
 )
