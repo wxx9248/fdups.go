@@ -1,6 +1,6 @@
 module fdups
 
-go 1.25
+go 1.27
 
 require (
 	github.com/mewkiz/flac v1.0.14
